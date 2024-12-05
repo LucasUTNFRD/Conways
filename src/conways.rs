@@ -1,5 +1,3 @@
-use std::usize;
-
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub enum CellState {
     Dead,
