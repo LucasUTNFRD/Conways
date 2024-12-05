@@ -15,11 +15,12 @@ fn conf() -> Conf {
 }
 
 fn test_glider(grid: &mut conways::Grid) {
-    grid.set(1, 2);
-    grid.set(2, 3);
-    grid.set(3, 1);
-    grid.set(3, 2);
-    grid.set(3, 3);
+    grid.set_alive(1, 2);
+    grid.set_alive(2, 3);
+    grid.set_alive(3, 1);
+    grid.set_alive(3, 2);
+    grid.set_alive(3, 3);
+    grid.set_alive(3, 5);
 }
 
 #[macroquad::main(conf)]
@@ -34,7 +35,9 @@ async fn main() {
 
         for y in 0..GRID_HEIGHT {
             for x in 0..GRID_WIDTH {
+                // this should be a get_alive cell from grid
                 if grid.get(x, y) == conways::CellState::Alive {
+                    // This draws the cell
                     draw_rectangle(x as f32 * 10.0, y as f32 * 10.0, 10.0, 10.0, WHITE);
                 }
             }
