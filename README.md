@@ -30,3 +30,4 @@ The game runs automatically, showing how patterns evolve over successive generat
 
 ## TODO
 - [ ] Add gif of the game running
+
