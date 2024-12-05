@@ -72,9 +72,11 @@ impl Grid {
                 let nx = x as i32 + dx;
                 let ny = y as i32 + dy;
 
-                // Only count if within grid boundaries
-                if (nx >= 0 && nx < self.width as i32 && ny >= 0 && ny < self.height as i32)
-                    && self.grid[ny as usize][nx as usize] == CellState::Alive
+                if self
+                    .grid
+                    .get(ny as usize)
+                    .and_then(|row| row.get(nx as usize))
+                    .map_or(false, |cell| *cell == CellState::Alive)
                 {
                     count += 1;
                 }
