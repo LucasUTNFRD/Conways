@@ -31,22 +31,15 @@ impl Game {
     }
 
     fn setup_glider(grid: &mut conways::Grid) {
-        grid.set_alive(2, 1);
-        grid.set_alive(3, 2);
-        grid.set_alive(1, 3);
-        grid.set_alive(2, 3);
-        grid.set_alive(3, 3);
-
-        // Draw a heavy weight spaceship
-        grid.set_alive(10, 10);
-        grid.set_alive(13, 10);
-        grid.set_alive(14, 11);
-        grid.set_alive(10, 12);
-        grid.set_alive(14, 12);
-        grid.set_alive(11, 13);
-        grid.set_alive(12, 13);
-        grid.set_alive(13, 13);
-        grid.set_alive(14, 13);
+        grid.set(10, 10, conways::CellState::Alive);
+        grid.set(13, 10, conways::CellState::Alive);
+        grid.set(14, 11, conways::CellState::Alive);
+        grid.set(10, 12, conways::CellState::Alive);
+        grid.set(14, 12, conways::CellState::Alive);
+        grid.set(11, 13, conways::CellState::Alive);
+        grid.set(12, 13, conways::CellState::Alive);
+        grid.set(13, 13, conways::CellState::Alive);
+        grid.set(14, 13, conways::CellState::Alive);
     }
 
     fn update(&mut self, dt: f32) {
@@ -89,14 +82,14 @@ impl Game {
                     mouse_position().0 as usize / CELL_SIZE as usize,
                     mouse_position().1 as usize / CELL_SIZE as usize,
                 );
-                self.grid.set_alive(x, y);
+                self.grid.set(x, y, conways::CellState::Alive);
             }
             if is_mouse_button_down(MouseButton::Right) {
                 let (x, y) = (
                     mouse_position().0 as usize / CELL_SIZE as usize,
                     mouse_position().1 as usize / CELL_SIZE as usize,
                 );
-                self.grid.set_dead(x, y);
+                self.grid.set(x, y, conways::CellState::Dead);
             }
         }
     }
