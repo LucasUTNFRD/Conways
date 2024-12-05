@@ -77,11 +77,11 @@ impl Grid {
                 let ny = y as i32 + dy;
 
                 // Only count if within grid boundaries
-                //if nx >= 0 && nx < self.width as i32 && ny >= 0 && ny < self.height as i32 {
-                if self.grid[ny as usize][nx as usize] == CellState::Alive {
-                    count += 1;
+                if nx >= 0 && nx < self.width as i32 && ny >= 0 && ny < self.height as i32 {
+                    if self.grid[ny as usize][nx as usize] == CellState::Alive {
+                        count += 1;
+                    }
                 }
-                //}
             }
         }
         count
@@ -94,14 +94,54 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_neighbour_counting_without_offset() {
-        let mut grid = Grid::new(10, 10);
+    fn test_count_neighbors_empty_grid() {
+        let grid = Grid::new(3, 3);
+        assert_eq!(grid.count_neighbors(1, 1), 0);
+    }
 
-        grid.set(2, 1);
-        grid.set(3, 1);
-        grid.set(3, 2);
-        grid.set(3, 3);
+    #[test]
+    fn test_count_neighbors_single_neighbor() {
+        let mut grid = Grid::new(3, 3);
+        grid.set(0, 0); // Set top-left cell alive
+        assert_eq!(grid.count_neighbors(1, 1), 1);
+    }
 
-        assert_eq!(grid.count_neighbors(2, 1), 2);
+    #[test]
+    fn test_count_neighbors_multiple_neighbors() {
+        let mut grid = Grid::new(3, 3);
+        // Set up a pattern around center cell
+        grid.set(0, 0); // Top-left
+        grid.set(1, 0); // Top
+        grid.set(2, 0); // Top-right
+        grid.set(0, 1); // Left
+        grid.set(2, 1); // Right
+        grid.set(0, 2); // Bottom-left
+        grid.set(1, 2); // Bottom
+        grid.set(2, 2); // Bottom-right
+
+        // Center cell should have 8 neighbors
+        assert_eq!(grid.count_neighbors(1, 1), 8);
+    }
+
+    #[test]
+    fn test_count_neighbors_corner_case() {
+        let mut grid = Grid::new(3, 3);
+        grid.set(0, 1); // Set middle-left cell alive
+        grid.set(1, 0); // Set top-middle cell alive
+
+        // Top-left corner should have 2 neighbors
+        assert_eq!(grid.count_neighbors(0, 0), 2);
+    }
+
+    #[test]
+    fn test_count_neighbors_edge_case() {
+        let mut grid = Grid::new(3, 3);
+        grid.set(0, 0); // Top-left
+        grid.set(1, 0); // Top-middle
+        grid.set(2, 0); // Top-right
+        grid.set(2, 1); // Middle-right
+
+        // Middle-top cell should have 3 neighbors
+        assert_eq!(grid.count_neighbors(1, 0), 3);
     }
 }
