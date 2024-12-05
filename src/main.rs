@@ -6,9 +6,16 @@ const GRID_HEIGHT: usize = 60;
 const CELL_SIZE: f32 = 10.0;
 const UPDATE_INTERVAL: f32 = 0.1;
 
+#[derive(PartialEq)]
+enum State {
+    Running,
+    Paused,
+}
+
 struct Game {
     grid: conways::Grid,
     last_update: f32,
+    state: State,
 }
 
 impl Game {
@@ -19,6 +26,7 @@ impl Game {
         Self {
             grid,
             last_update: 0.0,
+            state: State::Running,
         }
     }
 
@@ -34,7 +42,7 @@ impl Game {
         self.last_update += dt;
 
         // Update grid every UPDATE_INTERVAL seconds
-        if self.last_update >= UPDATE_INTERVAL {
+        if self.last_update >= UPDATE_INTERVAL && self.state == State::Running {
             self.grid.next_cell_generation();
             self.last_update = 0.0;
         }
@@ -53,6 +61,15 @@ impl Game {
                     );
                 }
             }
+        }
+    }
+
+    fn handle_input(&mut self) {
+        if is_key_pressed(KeyCode::Space) {
+            self.state = match self.state {
+                State::Running => State::Paused,
+                State::Paused => State::Running,
+            };
         }
     }
 }
@@ -74,6 +91,8 @@ async fn main() {
         clear_background(BLACK);
 
         let dt = get_frame_time();
+
+        game.handle_input();
 
         game.update(dt);
 
