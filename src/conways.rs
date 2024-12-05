@@ -33,12 +33,14 @@ impl Grid {
     pub fn next_cell_generation(&mut self) {
         let mut new_grid = vec![vec![CellState::Dead; self.width]; self.height];
 
-        for y in 0..self.height {
-            for x in 0..self.width {
+        //for y in 0..self.height {
+        //    for x in 0..self.width {
+        for (y, row) in new_grid.iter_mut().enumerate().take(self.height) {
+            for (x, cell) in row.iter_mut().enumerate().take(self.width) {
                 let neighbors = self.count_neighbors(x, y);
                 let current_state = &self.grid[y][x];
 
-                new_grid[y][x] = match (current_state, neighbors) {
+                *cell = match (current_state, neighbors) {
                     // Rule 1: Any live cell with fewer than two live neighbors dies
                     (CellState::Alive, 0..=1) => CellState::Dead,
                     // Rule 2: Any live cell with two or three live neighbors lives
