@@ -15,12 +15,12 @@ fn conf() -> Conf {
 }
 
 fn test_glider(grid: &mut conways::Grid) {
-    grid.set(1, 2);
-    grid.set(2, 3);
-    grid.set(3, 1);
-    grid.set(3, 2);
-    grid.set(3, 3);
-    grid.set(3, 5);
+    grid.set_alive(1, 2);
+    grid.set_alive(2, 3);
+    grid.set_alive(3, 1);
+    grid.set_alive(3, 2);
+    grid.set_alive(3, 3);
+    grid.set_alive(3, 5);
 }
 
 #[macroquad::main(conf)]
