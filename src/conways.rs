@@ -20,6 +20,9 @@ impl Grid {
         }
     }
 
+    pub fn set_dead(&mut self, x: usize, y: usize) {
+        self.grid[y][x] = CellState::Dead;
+    }
     pub fn set_alive(&mut self, x: usize, y: usize) {
         self.grid[y][x] = CellState::Alive;
     }

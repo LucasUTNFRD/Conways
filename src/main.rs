@@ -36,6 +36,17 @@ impl Game {
         grid.set_alive(1, 3);
         grid.set_alive(2, 3);
         grid.set_alive(3, 3);
+
+        // Draw a heavy weight spaceship
+        grid.set_alive(10, 10);
+        grid.set_alive(13, 10);
+        grid.set_alive(14, 11);
+        grid.set_alive(10, 12);
+        grid.set_alive(14, 12);
+        grid.set_alive(11, 13);
+        grid.set_alive(12, 13);
+        grid.set_alive(13, 13);
+        grid.set_alive(14, 13);
     }
 
     fn update(&mut self, dt: f32) {
@@ -70,6 +81,23 @@ impl Game {
                 State::Running => State::Paused,
                 State::Paused => State::Running,
             };
+        }
+        // if game is paused let user draw cells
+        if self.state == State::Paused {
+            if is_mouse_button_down(MouseButton::Left) {
+                let (x, y) = (
+                    mouse_position().0 as usize / CELL_SIZE as usize,
+                    mouse_position().1 as usize / CELL_SIZE as usize,
+                );
+                self.grid.set_alive(x, y);
+            }
+            if is_mouse_button_down(MouseButton::Right) {
+                let (x, y) = (
+                    mouse_position().0 as usize / CELL_SIZE as usize,
+                    mouse_position().1 as usize / CELL_SIZE as usize,
+                );
+                self.grid.set_dead(x, y);
+            }
         }
     }
 }
