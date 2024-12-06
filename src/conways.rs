@@ -1,5 +1,3 @@
-use std::usize;
-
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub enum CellState {
     Dead,
@@ -22,8 +20,8 @@ impl Grid {
         }
     }
 
-    pub fn set_alive(&mut self, x: usize, y: usize) {
-        self.grid[y][x] = CellState::Alive;
+    pub fn set(&mut self, x: usize, y: usize, state: CellState) {
+        self.grid[y][x] = state;
     }
 
     pub fn get(&self, x: usize, y: usize) -> CellState {
@@ -35,12 +33,12 @@ impl Grid {
     pub fn next_cell_generation(&mut self) {
         let mut new_grid = vec![vec![CellState::Dead; self.width]; self.height];
 
-        for y in 0..self.height {
-            for x in 0..self.width {
+        for (y, row) in new_grid.iter_mut().enumerate().take(self.height) {
+            for (x, cell) in row.iter_mut().enumerate().take(self.width) {
                 let neighbors = self.count_neighbors(x, y);
                 let current_state = &self.grid[y][x];
 
-                new_grid[y][x] = match (current_state, neighbors) {
+                *cell = match (current_state, neighbors) {
                     // Rule 1: Any live cell with fewer than two live neighbors dies
                     (CellState::Alive, 0..=1) => CellState::Dead,
                     // Rule 2: Any live cell with two or three live neighbors lives
@@ -99,22 +97,22 @@ mod tests {
     #[test]
     fn test_count_neighbors_single_neighbor() {
         let mut grid = Grid::new(3, 3);
-        grid.set_alive(0, 0); // Set top-left cell alive
+        grid.set(0, 0, CellState::Alive); // Set top-left cell alive
         assert_eq!(grid.count_neighbors(1, 1), 1);
     }
 
     #[test]
     fn test_count_neighbors_multiple_neighbors() {
         let mut grid = Grid::new(3, 3);
-        // set_alive up a pattern around center cell
-        grid.set_alive(0, 0); // Top-left
-        grid.set_alive(1, 0); // Top
-        grid.set_alive(2, 0); // Top-right
-        grid.set_alive(0, 1); // Left
-        grid.set_alive(2, 1); // Right
-        grid.set_alive(0, 2); // Bottom-left
-        grid.set_alive(1, 2); // Bottom
-        grid.set_alive(2, 2); // Bottom-right
+        // set up a pattern around center cell
+        grid.set(0, 0, CellState::Alive); // Top-left
+        grid.set(1, 0, CellState::Alive); // Top
+        grid.set(2, 0, CellState::Alive); // Top-right
+        grid.set(0, 1, CellState::Alive); // Left
+        grid.set(2, 1, CellState::Alive); // Right
+        grid.set(0, 2, CellState::Alive); // Bottom-left
+        grid.set(1, 2, CellState::Alive); // Bottom
+        grid.set(2, 2, CellState::Alive); // Bottom-right
 
         // Center cell should have 8 neighbors
         assert_eq!(grid.count_neighbors(1, 1), 8);
@@ -123,8 +121,8 @@ mod tests {
     #[test]
     fn test_count_neighbors_corner_case() {
         let mut grid = Grid::new(3, 3);
-        grid.set_alive(0, 1); // Set middle-left cell alive
-        grid.set_alive(1, 0); // Set top-middle cell alive
+        grid.set(0, 1, CellState::Alive); // Set middle-left cell alive
+        grid.set(1, 0, CellState::Alive); // Set top-middle cell alive
 
         // Top-left corner should have 2 neighbors
         assert_eq!(grid.count_neighbors(0, 0), 2);
@@ -133,10 +131,10 @@ mod tests {
     #[test]
     fn test_count_neighbors_edge_case() {
         let mut grid = Grid::new(3, 3);
-        grid.set_alive(0, 0); // Top-left
-        grid.set_alive(1, 0); // Top-middle
-        grid.set_alive(2, 0); // Top-right
-        grid.set_alive(2, 1); // Middle-right
+        grid.set(0, 0, CellState::Alive); // Top-left
+        grid.set(1, 0, CellState::Alive); // Top-middle
+        grid.set(2, 0, CellState::Alive); // Top-right
+        grid.set(2, 1, CellState::Alive); // Middle-right
 
         // Middle-top cell should have 3 neighbors
         assert_eq!(grid.count_neighbors(1, 0), 3);
@@ -146,8 +144,8 @@ mod tests {
     #[test]
     fn test_rule_1() {
         let mut grid = Grid::new(3, 3);
-        grid.set_alive(1, 1); // Set center cell Alive
-        grid.set_alive(1, 2); // Set top-left cell Alive
+        grid.set(1, 1, CellState::Alive); // Set center cell Alive
+        grid.set(1, 2, CellState::Alive); // Set top-left cell Alive
 
         //check that center cell only has 1 neighbor
         assert_eq!(grid.count_neighbors(1, 1), 1);
@@ -161,9 +159,9 @@ mod tests {
     #[test]
     fn test_rule_2() {
         let mut grid = Grid::new(3, 3);
-        grid.set_alive(1, 1); // Set center cell Alive
-        grid.set_alive(0, 0); // Set top-left cell Alive
-        grid.set_alive(0, 1); // Set top-middle cell Alive
+        grid.set(1, 1, CellState::Alive); // Set center cell Alive
+        grid.set(0, 0, CellState::Alive); // Set top-left cell Alive
+        grid.set(0, 1, CellState::Alive); // Set top-middle cell Alive
 
         //check that center cell has 2 neighbors
         assert_eq!(grid.count_neighbors(1, 1), 2);
@@ -177,9 +175,9 @@ mod tests {
     #[test]
     fn test_rule_3() {
         let mut grid = Grid::new(3, 3);
-        grid.set_alive(0, 0); // Set top-left cell Alive
-        grid.set_alive(0, 1); // Set top-middle cell Alive
-        grid.set_alive(1, 0); // Set middle-left cell Alive
+        grid.set(0, 0, CellState::Alive); // Set top-left cell Alive
+        grid.set(0, 1, CellState::Alive); // Set top-middle cell Alive
+        grid.set(1, 0, CellState::Alive); // Set middle-left cell Alive
 
         //check that center cell has 3 neighbors
         assert_eq!(grid.count_neighbors(1, 1), 3);
@@ -200,11 +198,11 @@ mod tests {
     #[test]
     fn test_rule_4() {
         let mut grid = Grid::new(3, 3);
-        grid.set_alive(1, 1); // Set center cell Alive
-        grid.set_alive(0, 0); // Set top-left cell Alive
-        grid.set_alive(0, 1); // Set top-middle cell Alive
-        grid.set_alive(0, 2); // Set top-right cell Alive
-        grid.set_alive(1, 0); // Set middle-left cell Alive
+        grid.set(1, 1, CellState::Alive); // Set center cell Alive
+        grid.set(0, 0, CellState::Alive); // Set top-left cell Alive
+        grid.set(0, 1, CellState::Alive); // Set top-middle cell Alive
+        grid.set(0, 2, CellState::Alive); // Set top-right cell Alive
+        grid.set(1, 0, CellState::Alive); // Set middle-left cell Alive
 
         //check that center cell has 4 neighbors
         assert_eq!(grid.count_neighbors(1, 1), 4);
@@ -231,9 +229,9 @@ mod tests {
     fn test_blinker_pattern() {
         let mut grid = Grid::new(5, 5);
 
-        grid.set_alive(2, 1);
-        grid.set_alive(2, 2);
-        grid.set_alive(2, 3);
+        grid.set(2, 1, CellState::Alive);
+        grid.set(2, 2, CellState::Alive);
+        grid.set(2, 3, CellState::Alive);
 
         println!("Initial generation:");
         print_grid(&grid);
@@ -248,12 +246,12 @@ mod tests {
         let mut grid = Grid::new(6, 6);
 
         // Set toad pattern
-        grid.set_alive(2, 2);
-        grid.set_alive(3, 2);
-        grid.set_alive(4, 2);
-        grid.set_alive(1, 3);
-        grid.set_alive(2, 3);
-        grid.set_alive(3, 3);
+        grid.set(2, 2, CellState::Alive);
+        grid.set(3, 2, CellState::Alive);
+        grid.set(4, 2, CellState::Alive);
+        grid.set(1, 3, CellState::Alive);
+        grid.set(2, 3, CellState::Alive);
+        grid.set(3, 3, CellState::Alive);
 
         println!("Initial generation:");
         print_grid(&grid);

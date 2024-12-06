@@ -1,9 +1,98 @@
 mod conways;
 use macroquad::prelude::*;
 
-//define const for the grid size
 const GRID_WIDTH: usize = 80;
 const GRID_HEIGHT: usize = 60;
+const CELL_SIZE: f32 = 10.0;
+const UPDATE_INTERVAL: f32 = 0.1;
+
+#[derive(PartialEq)]
+enum State {
+    Running,
+    Paused,
+}
+
+struct Game {
+    grid: conways::Grid,
+    last_update: f32,
+    state: State,
+}
+
+impl Game {
+    fn new() -> Self {
+        let mut grid = conways::Grid::new(GRID_WIDTH, GRID_HEIGHT);
+        Self::setup_glider(&mut grid);
+
+        Self {
+            grid,
+            last_update: 0.0,
+            state: State::Running,
+        }
+    }
+
+    fn setup_glider(grid: &mut conways::Grid) {
+        grid.set(10, 10, conways::CellState::Alive);
+        grid.set(13, 10, conways::CellState::Alive);
+        grid.set(14, 11, conways::CellState::Alive);
+        grid.set(10, 12, conways::CellState::Alive);
+        grid.set(14, 12, conways::CellState::Alive);
+        grid.set(11, 13, conways::CellState::Alive);
+        grid.set(12, 13, conways::CellState::Alive);
+        grid.set(13, 13, conways::CellState::Alive);
+        grid.set(14, 13, conways::CellState::Alive);
+    }
+
+    fn update(&mut self, dt: f32) {
+        self.last_update += dt;
+
+        // Update grid every UPDATE_INTERVAL seconds
+        if self.last_update >= UPDATE_INTERVAL && self.state == State::Running {
+            self.grid.next_cell_generation();
+            self.last_update = 0.0;
+        }
+    }
+
+    fn draw(&self) {
+        for y in 0..GRID_HEIGHT {
+            for x in 0..GRID_WIDTH {
+                if self.grid.get(x, y) == conways::CellState::Alive {
+                    draw_rectangle(
+                        x as f32 * CELL_SIZE,
+                        y as f32 * CELL_SIZE,
+                        CELL_SIZE,
+                        CELL_SIZE,
+                        WHITE,
+                    );
+                }
+            }
+        }
+    }
+
+    fn handle_input(&mut self) {
+        if is_key_pressed(KeyCode::Space) {
+            self.state = match self.state {
+                State::Running => State::Paused,
+                State::Paused => State::Running,
+            };
+        }
+
+        if self.state == State::Paused {
+            let cast_to_usize = |num: f32| num as usize / CELL_SIZE as usize;
+            let (x, y) = (
+                cast_to_usize(mouse_position().0),
+                cast_to_usize(mouse_position().1),
+            );
+            match (
+                is_mouse_button_down(MouseButton::Left),
+                is_mouse_button_down(MouseButton::Right),
+            ) {
+                (true, false) => self.grid.set(x, y, conways::CellState::Alive),
+                (false, true) => self.grid.set(x, y, conways::CellState::Dead),
+                _ => (),
+            }
+        }
+    }
+}
 
 fn conf() -> Conf {
     Conf {
@@ -14,34 +103,19 @@ fn conf() -> Conf {
     }
 }
 
-fn test_glider(grid: &mut conways::Grid) {
-    grid.set_alive(1, 2);
-    grid.set_alive(2, 3);
-    grid.set_alive(3, 1);
-    grid.set_alive(3, 2);
-    grid.set_alive(3, 3);
-    grid.set_alive(3, 5);
-}
-
 #[macroquad::main(conf)]
 async fn main() {
-    let mut grid = conways::Grid::new(GRID_WIDTH, GRID_HEIGHT);
-
-    test_glider(&mut grid);
-
-    // set a loop where i can see the test_glider
+    let mut game = Game::new();
     loop {
         clear_background(BLACK);
 
-        for y in 0..GRID_HEIGHT {
-            for x in 0..GRID_WIDTH {
-                // this should be a get_alive cell from grid
-                if grid.get(x, y) == conways::CellState::Alive {
-                    // This draws the cell
-                    draw_rectangle(x as f32 * 10.0, y as f32 * 10.0, 10.0, 10.0, WHITE);
-                }
-            }
-        }
+        let dt = get_frame_time();
+
+        game.handle_input();
+
+        game.update(dt);
+
+        game.draw();
 
         next_frame().await
     }
