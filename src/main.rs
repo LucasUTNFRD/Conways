@@ -75,21 +75,20 @@ impl Game {
                 State::Paused => State::Running,
             };
         }
-        // if game is paused let user draw cells
+
         if self.state == State::Paused {
-            if is_mouse_button_down(MouseButton::Left) {
-                let (x, y) = (
-                    mouse_position().0 as usize / CELL_SIZE as usize,
-                    mouse_position().1 as usize / CELL_SIZE as usize,
-                );
-                self.grid.set(x, y, conways::CellState::Alive);
-            }
-            if is_mouse_button_down(MouseButton::Right) {
-                let (x, y) = (
-                    mouse_position().0 as usize / CELL_SIZE as usize,
-                    mouse_position().1 as usize / CELL_SIZE as usize,
-                );
-                self.grid.set(x, y, conways::CellState::Dead);
+            let cast_to_usize = |num: f32| num as usize / CELL_SIZE as usize;
+            let (x, y) = (
+                cast_to_usize(mouse_position().0),
+                cast_to_usize(mouse_position().1),
+            );
+            match (
+                is_mouse_button_down(MouseButton::Left),
+                is_mouse_button_down(MouseButton::Right),
+            ) {
+                (true, false) => self.grid.set(x, y, conways::CellState::Alive),
+                (false, true) => self.grid.set(x, y, conways::CellState::Dead),
+                _ => (),
             }
         }
     }
@@ -106,7 +105,6 @@ fn conf() -> Conf {
 
 #[macroquad::main(conf)]
 async fn main() {
-    // set a loop where i can see the test_glider
     let mut game = Game::new();
     loop {
         clear_background(BLACK);

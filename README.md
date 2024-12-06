@@ -27,7 +27,3 @@ The game runs automatically, showing how patterns evolve over successive generat
 - Observe oscillating and gliding patterns
 - Click any cell to toggle its state between alive/dead
 - Pause/resume the simulation with spacebar
-
-## TODO
-- [ ] Add gif of the game running
-

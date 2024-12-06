@@ -33,8 +33,6 @@ impl Grid {
     pub fn next_cell_generation(&mut self) {
         let mut new_grid = vec![vec![CellState::Dead; self.width]; self.height];
 
-        //for y in 0..self.height {
-        //    for x in 0..self.width {
         for (y, row) in new_grid.iter_mut().enumerate().take(self.height) {
             for (x, cell) in row.iter_mut().enumerate().take(self.width) {
                 let neighbors = self.count_neighbors(x, y);
