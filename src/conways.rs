@@ -1,10 +1,15 @@
 #[derive(Clone, PartialEq, Eq, Debug)]
+/// Represents the state of a cell in Conway's Game of Life
+/// - `Dead`: An inactive/empty cell
+/// - `Alive`: An active/populated cell
 pub enum CellState {
     Dead,
     Alive,
 }
 
-#[derive(Debug)]
+/// Represents a 2D grid of cells
+/// The grid is represented as a vector of vectors of `CellState`
+/// Each cell can be in one of two states: Dead or Alive
 pub struct Grid {
     grid: Vec<Vec<CellState>>,
     width: usize,
@@ -12,6 +17,20 @@ pub struct Grid {
 }
 
 impl Grid {
+    /// Create a new grid with the specified width and height
+    /// All cells are initialized to `Dead`
+    ///
+    /// # Arguments
+    /// * `width` - The width of the grid
+    /// * `height` - The height of the grid
+    ///
+    /// # Returns
+    /// A new `Grid` instance with all cells initialized to `Dead`
+    ///
+    /// # Example
+    /// ```
+    /// let grid = Grid::new(10, 10);
+    /// ```
     pub fn new(width: usize, height: usize) -> Self {
         Self {
             grid: vec![vec![CellState::Dead; width]; height],
@@ -20,16 +39,49 @@ impl Grid {
         }
     }
 
+    /// Set the state of a cell at the specified coordinates
+    ///
+    /// # Arguments
+    /// * `x` - The x-coordinate of the cell
+    /// * `y` - The y-coordinate of the cell
+    /// * `state` - The state to set the cell to
+    ///
+    /// # Example
+    /// ```
+    /// let mut grid = Grid::new(10, 10);
+    /// grid.set(5, 5, CellState::Alive);
+    /// ```
     pub fn set(&mut self, x: usize, y: usize, state: CellState) {
         self.grid[y][x] = state;
     }
 
+    /// Gets the current state of a cell at the specified coordinates.
+    ///
+    /// # Arguments
+    /// * `x` - The x-coordinate (column) of the cell
+    /// * `y` - The y-coordinate (row) of the cell
+    ///
+    /// # Returns
+    /// The current `CellState` of the cell at the specified position
+    ///
+    /// # Example
+    /// ```
+    /// let grid = Grid::new(10, 10);
+    /// let cell_state = grid.get(5, 5);
+    /// ```
     pub fn get(&self, x: usize, y: usize) -> CellState {
         self.grid[y][x].clone()
     }
 
-    /// Calculate the next generation of cells based on the rules of Conway's Game of life
-    /// https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
+    /// Advances the grid to the next generation according to Conway's Game of Life rules:
+    /// 1. Any live cell with fewer than two live neighbors dies (underpopulation)
+    /// 2. Any live cell with two or three live neighbors survives
+    /// 3. Any live cell with more than three live neighbors dies (overpopulation)
+    /// 4. Any dead cell with exactly three live neighbors becomes alive (reproduction)
+    ///
+    /// This method updates the entire grid based on these rules, creating the next generation
+    /// of cells.
+    /// see more: <https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life>
     pub fn next_cell_generation(&mut self) {
         let mut new_grid = vec![vec![CellState::Dead; self.width]; self.height];
 
